@@ -48,9 +48,10 @@ func (jobResponse *JobResponse) GetJobs() []*Job {
 
 // ToJob converts a JobWrapper into a Job
 func (jobWrapper *JobWrapper) ToJob() *Job {
-	description := transformText(jobWrapper.Description)
+	description := transformDescription(jobWrapper.Description)
 	basicQualifictions := transformQualifications(jobWrapper.BasicQualifications)
 	preferredQualifictions := transformQualifications(jobWrapper.PreferredQualifications)
+	fullURL := "www.amazon.jobs" + jobWrapper.Path
 
 	return &Job{
 		ID:                      jobWrapper.ID,
@@ -63,36 +64,31 @@ func (jobWrapper *JobWrapper) ToJob() *Job {
 		Location:                jobWrapper.Location,
 		City:                    jobWrapper.City,
 		Date:                    jobWrapper.Date,
-		Path:                    jobWrapper.Path,
+		URL:                     fullURL,
 	}
 }
 
 func transformQualifications(text string) []string {
-	parts := transformText(text)
+	parts := strings.Split(text, "<br/>")
 
 	var result []string
 
 	for _, part := range parts {
 		if strings.HasPrefix(part, "· ") {
 			part = strings.Replace(part, "· ", "", -1)
-			result = append(result, part)
+			part = strings.Replace(part, "&", "and", -1)
+
+			if part != "" {
+				result = append(result, part)
+			}
 		}
 	}
 
 	return result
 }
 
-func transformText(text string) []string {
-
-	parts := strings.Split(text, "<br/>")
-
-	var result []string
-
-	for _, part := range parts {
-		if part != "" {
-			result = append(result, part)
-		}
-	}
-
-	return result
+func transformDescription(text string) string {
+	text = strings.Replace(text, "<br/>", "\n", -1)
+	text = strings.Replace(text, "&", "and", -1)
+	return text
 }

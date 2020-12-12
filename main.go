@@ -6,11 +6,34 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 )
 
 func main() {
-	baseURL := "https://www.amazon.jobs/en/search.json?offset=0&result_limit=100&sort=relevant&loc_query=Remote&base_query=Software%20Development"
+	baseURL := getURL()
+	findJobs(baseURL)
+}
+
+func getURL() string {
+	baseURL := &url.URL{
+		Scheme: "https",
+		Host:   "www.amazon.jobs",
+		Path:   "/en/search.json",
+	}
+
+	values := &url.Values{}
+	values.Set("offset", "0")
+	values.Set("result_limit", "10")
+	values.Set("sort", "relevant")
+	values.Set("loc_query", "Remote")
+	values.Set("base_query", "Software Development")
+
+	baseURL.RawQuery = values.Encode()
+	return baseURL.String()
+}
+
+func findJobs(baseURL string) {
 	response, err := http.Get(baseURL)
 
 	if err != nil {
