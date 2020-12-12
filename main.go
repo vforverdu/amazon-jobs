@@ -24,8 +24,7 @@ func getURL() string {
 
 	values := &url.Values{}
 	values.Set("offset", "0")
-	values.Set("result_limit", "10")
-	// values.Set("sort", "relevant")
+	values.Set("result_limit", "100")
 	values.Set("sort", "recent")
 	values.Set("loc_query", "Remote")
 	values.Set("base_query", "Software Development")
@@ -59,7 +58,7 @@ func findJobs(baseURL string) {
 			log.Fatal(err)
 		}
 
-		file, err := os.Create("data/result.json")
+		file, err := os.Create("data/jobs.json")
 
 		if err != nil {
 			log.Fatal(err)
