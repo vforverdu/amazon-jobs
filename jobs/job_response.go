@@ -48,24 +48,21 @@ func (jobResponse *JobResponse) GetJobs() []*Job {
 
 // ToJob converts a JobWrapper into a Job
 func (jobWrapper *JobWrapper) ToJob() *Job {
-	description := transformDescription(jobWrapper.Description)
-	basicQualifictions := transformQualifications(jobWrapper.BasicQualifications)
-	preferredQualifictions := transformQualifications(jobWrapper.PreferredQualifications)
-	fullURL := "www.amazon.jobs" + jobWrapper.Path
-
-	return &Job{
+	job := &Job{
 		ID:                      jobWrapper.ID,
-		Title:                   jobWrapper.Title,
-		Category:                jobWrapper.Category,
-		Description:             description,
-		BasicQualifications:     basicQualifictions,
-		PreferredQualifications: preferredQualifictions,
-		CompanyName:             jobWrapper.CompanyName,
-		Location:                jobWrapper.Location,
-		City:                    jobWrapper.City,
-		Date:                    jobWrapper.Date,
-		URL:                     fullURL,
+		Title:                   transformText(jobWrapper.Title),
+		Category:                transformText(jobWrapper.Category),
+		Description:             transformText(jobWrapper.Description),
+		BasicQualifications:     transformQualifications(jobWrapper.BasicQualifications),
+		PreferredQualifications: transformQualifications(jobWrapper.PreferredQualifications),
+		CompanyName:             transformText(jobWrapper.CompanyName),
+		Location:                transformText(jobWrapper.Location),
+		City:                    transformText(jobWrapper.City),
+		Date:                    transformText(jobWrapper.Date),
+		URL:                     "www.amazon.jobs" + jobWrapper.Path,
 	}
+
+	return job
 }
 
 func transformQualifications(text string) []string {
@@ -74,20 +71,18 @@ func transformQualifications(text string) []string {
 	var result []string
 
 	for _, part := range parts {
-		if strings.HasPrefix(part, "· ") {
-			part = strings.Replace(part, "· ", "", -1)
-			part = strings.Replace(part, "&", "and", -1)
+		part = strings.Replace(part, "&", "and", -1)
+		part = strings.Replace(part, "· ", "", -1)
 
-			if part != "" {
-				result = append(result, part)
-			}
+		if part != "" {
+			result = append(result, part)
 		}
 	}
 
 	return result
 }
 
-func transformDescription(text string) string {
+func transformText(text string) string {
 	text = strings.Replace(text, "<br/>", "\n", -1)
 	text = strings.Replace(text, "&", "and", -1)
 	return text
