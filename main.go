@@ -26,8 +26,10 @@ func getURL() string {
 	values.Set("offset", "0")
 	values.Set("result_limit", "100")
 	values.Set("sort", "recent")
+	values.Set("category[]", "software-development")
+	values.Set("schedule_type_id[]", "Full-Time")
 	// values.Set("loc_query", "Remote")
-	values.Set("base_query", "Software Development")
+	// values.Set("base_query", "Software Development")
 
 	baseURL.RawQuery = values.Encode()
 	return baseURL.String()

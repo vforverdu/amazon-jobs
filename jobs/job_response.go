@@ -20,9 +20,7 @@ type JobWrapper struct {
 	Description             string `json:"description"`
 	BasicQualifications     string `json:"basic_qualifications"`
 	PreferredQualifications string `json:"preferred_qualifications"`
-	CompanyName             string `json:"company_name"`
 	Location                string `json:"normalized_location"`
-	City                    string `json:"city"`
 	Date                    string `json:"posted_date"`
 	Path                    string `json:"job_path"`
 }
@@ -50,14 +48,13 @@ func (jobResponse *JobResponse) GetJobs() []*Job {
 func (jobWrapper *JobWrapper) ToJob() *Job {
 	job := &Job{
 		ID:                      jobWrapper.ID,
-		Title:                   transformText(jobWrapper.Title),
+		Company:                 "AMAZON",
+		Title:                   transformTitle(jobWrapper.Title),
 		Category:                transformText(jobWrapper.Category),
 		Description:             transformText(jobWrapper.Description),
 		BasicQualifications:     transformQualifications(jobWrapper.BasicQualifications),
 		PreferredQualifications: transformQualifications(jobWrapper.PreferredQualifications),
-		CompanyName:             transformText(jobWrapper.CompanyName),
 		Location:                transformText(jobWrapper.Location),
-		City:                    transformText(jobWrapper.City),
 		Date:                    transformText(jobWrapper.Date),
 		URL:                     "www.amazon.jobs" + jobWrapper.Path,
 	}
@@ -65,8 +62,13 @@ func (jobWrapper *JobWrapper) ToJob() *Job {
 	return job
 }
 
-func transformQualifications(text string) []string {
-	parts := strings.Split(text, "<br/>")
+func transformTitle(title string) string {
+	cleanTitle := strings.Split(title, "-")[0]
+	return transformText(cleanTitle)
+}
+
+func transformQualifications(qualifications string) []string {
+	parts := strings.Split(qualifications, "<br/>")
 
 	var result []string
 
@@ -85,5 +87,7 @@ func transformQualifications(text string) []string {
 func transformText(text string) string {
 	text = strings.Replace(text, "<br/>", "\n", -1)
 	text = strings.Replace(text, "&", "and", -1)
+	text = strings.Trim(text, "\n")
+	text = strings.TrimSpace(text)
 	return text
 }
