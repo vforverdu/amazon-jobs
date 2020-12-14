@@ -2,7 +2,9 @@ package jobs
 
 import (
 	"encoding/json"
+	"log"
 	"strings"
+	"time"
 )
 
 // JobResponse is the response obtained from the Amazon Jobs endpoint
@@ -46,48 +48,34 @@ func (jobResponse *JobResponse) GetJobs() []*Job {
 
 // ToJob converts a JobWrapper into a Job
 func (jobWrapper *JobWrapper) ToJob() *Job {
-	job := &Job{
-		ID:                      jobWrapper.ID,
-		Company:                 "AMAZON",
-		Title:                   transformTitle(jobWrapper.Title),
-		Category:                transformText(jobWrapper.Category),
-		Description:             transformText(jobWrapper.Description),
-		BasicQualifications:     transformQualifications(jobWrapper.BasicQualifications),
-		PreferredQualifications: transformQualifications(jobWrapper.PreferredQualifications),
-		Location:                transformText(jobWrapper.Location),
-		Date:                    transformText(jobWrapper.Date),
-		URL:                     "www.amazon.jobs" + jobWrapper.Path,
+	return &Job{
+		ID:          jobWrapper.ID,
+		Company:     "AMAZON",
+		Title:       jobWrapper.Title,
+		Category:    "SOFTWARE",
+		Description: transformDescription(jobWrapper.Description, jobWrapper.BasicQualifications, jobWrapper.PreferredQualifications),
+		Location:    jobWrapper.Location,
+		Date:        transformDate(jobWrapper.Date),
+		URL:         "www.amazon.jobs" + jobWrapper.Path,
+	}
+}
+
+func transformDescription(description, basicQualifications, preferredQualifications string) string {
+	parts := []string{
+		description,
+		basicQualifications,
+		preferredQualifications,
 	}
 
-	return job
+	return strings.Join(parts, "<br/>")
 }
 
-func transformTitle(title string) string {
-	cleanTitle := strings.Split(title, "-")[0]
-	return transformText(cleanTitle)
-}
+func transformDate(dateString string) string {
+	date, err := time.Parse("January 2, 2006", dateString)
 
-func transformQualifications(qualifications string) []string {
-	parts := strings.Split(qualifications, "<br/>")
-
-	var result []string
-
-	for _, part := range parts {
-		part = strings.Replace(part, "&", "and", -1)
-		part = strings.Replace(part, "· ", "", -1)
-
-		if part != "" {
-			result = append(result, part)
-		}
+	if err != nil {
+		log.Fatal("Error parsing date")
 	}
 
-	return result
-}
-
-func transformText(text string) string {
-	text = strings.Replace(text, "<br/>", "\n", -1)
-	text = strings.Replace(text, "&", "and", -1)
-	text = strings.Trim(text, "\n")
-	text = strings.TrimSpace(text)
-	return text
+	return date.Format("2006-01-02")
 }
